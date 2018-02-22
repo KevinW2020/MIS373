@@ -1,0 +1,35 @@
+import pandas as pd
+from pandas import Series, DataFrame
+%matplotlib inline
+import matplotlib
+
+#I put all of the comments/explanations as markdowns in the ipynb file s
+
+#unicode tells Pandas to treat all columns as strings (instead of integers/dates/etc.)
+df = pd.read_csv('NYC_Restaurants.csv', dtype=unicode)
+
+#Q1
+df['RESTAURANT'] = df['DBA'] + " " + df['BUILDING'] + " " + df["STREET"] + " " + df['ZIPCODE']
+restaurants = df['RESTAURANT'].unique() #create unique name for each restaurant
+print restaurants[0:10]
+
+#Q2
+print "There are " + str(len(restaurants)) + " restaurants included in the data"
+
+#Q3
+df['ADDRESS'] = df['BUILDING'] +  " " + df['STREET'] +  " " + df['ZIPCODE']
+unique_addresses = df[['DBA', 'ADDRESS', 'BORO']].drop_duplicates()
+chains_mask = unique_addresses['DBA'].duplicated()
+chain_series = unique_addresses['DBA'][chains_mask].unique()
+print "There are " + str(len(chain_series)) + " chains"
+
+#Q4
+chain_addresses = unique_addresses[unique_addresses['DBA'].isin(chain_series)].sort_values('DBA')
+#print len(chain_addresses)
+chain_count = chain_addresses['DBA'].value_counts()
+chain_count[:20].plot(kind='bar')
+
+#Q5
+chain_fraction = (float(len(chain_addresses['DBA'])) / len(unique_addresses['DBA']))
+chain_percentage = chain_fraction*100
+print str(chain_percentage) + "% of all restaurants are chains"
